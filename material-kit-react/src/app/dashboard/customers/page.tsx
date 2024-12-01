@@ -1,5 +1,8 @@
-import * as React from 'react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import type { Metadata } from 'next';
+import { TextField } from '@mui/material';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -7,111 +10,164 @@ import { Download as DownloadIcon } from '@phosphor-icons/react/dist/ssr/Downloa
 import { Plus as PlusIcon } from '@phosphor-icons/react/dist/ssr/Plus';
 import { Upload as UploadIcon } from '@phosphor-icons/react/dist/ssr/Upload';
 import dayjs from 'dayjs';
+import { initializeApp } from 'firebase/app';
+import { addDoc, collection, getFirestore, onSnapshot } from 'firebase/firestore';
 
 import { config } from '@/config';
 import { CustomersFilters } from '@/components/dashboard/customer/customers-filters';
 import { CustomersTable } from '@/components/dashboard/customer/customers-table';
 import type { Customer } from '@/components/dashboard/customer/customers-table';
 
-export const metadata = { title: `Customers | Dashboard | ${config.site.name}` } satisfies Metadata;
+// export const metadata = { title: `Customers | Dashboard | ${config.site.name}` } satisfies Metadata;
+import firebaseConfig from './firebaseConfig';
 
-const customers = [
-  {
-    id: 'USR-010',
-    name: 'Alcides Antonio',
-    avatar: '/assets/avatar-10.png',
-    email: 'alcides.antonio@devias.io',
-    phone: '908-691-3242',
-    address: { city: 'Madrid', country: 'Spain', state: 'Comunidad de Madrid', street: '4158 Hedge Street' },
-    createdAt: dayjs().subtract(2, 'hours').toDate(),
-  },
-  {
-    id: 'USR-009',
-    name: 'Marcus Finn',
-    avatar: '/assets/avatar-9.png',
-    email: 'marcus.finn@devias.io',
-    phone: '415-907-2647',
-    address: { city: 'Carson City', country: 'USA', state: 'Nevada', street: '2188 Armbrester Drive' },
-    createdAt: dayjs().subtract(2, 'hours').toDate(),
-  },
-  {
-    id: 'USR-008',
-    name: 'Jie Yan',
-    avatar: '/assets/avatar-8.png',
-    email: 'jie.yan.song@devias.io',
-    phone: '770-635-2682',
-    address: { city: 'North Canton', country: 'USA', state: 'Ohio', street: '4894 Lakeland Park Drive' },
-    createdAt: dayjs().subtract(2, 'hours').toDate(),
-  },
-  {
-    id: 'USR-007',
-    name: 'Nasimiyu Danai',
-    avatar: '/assets/avatar-7.png',
-    email: 'nasimiyu.danai@devias.io',
-    phone: '801-301-7894',
-    address: { city: 'Salt Lake City', country: 'USA', state: 'Utah', street: '368 Lamberts Branch Road' },
-    createdAt: dayjs().subtract(2, 'hours').toDate(),
-  },
-  {
-    id: 'USR-006',
-    name: 'Iulia Albu',
-    avatar: '/assets/avatar-6.png',
-    email: 'iulia.albu@devias.io',
-    phone: '313-812-8947',
-    address: { city: 'Murray', country: 'USA', state: 'Utah', street: '3934 Wildrose Lane' },
-    createdAt: dayjs().subtract(2, 'hours').toDate(),
-  },
-  {
-    id: 'USR-005',
-    name: 'Fran Perez',
-    avatar: '/assets/avatar-5.png',
-    email: 'fran.perez@devias.io',
-    phone: '712-351-5711',
-    address: { city: 'Atlanta', country: 'USA', state: 'Georgia', street: '1865 Pleasant Hill Road' },
-    createdAt: dayjs().subtract(2, 'hours').toDate(),
-  },
+require('dotenv').config();
 
-  {
-    id: 'USR-004',
-    name: 'Penjani Inyene',
-    avatar: '/assets/avatar-4.png',
-    email: 'penjani.inyene@devias.io',
-    phone: '858-602-3409',
-    address: { city: 'Berkeley', country: 'USA', state: 'California', street: '317 Angus Road' },
-    createdAt: dayjs().subtract(2, 'hours').toDate(),
-  },
-  {
-    id: 'USR-003',
-    name: 'Carson Darrin',
-    avatar: '/assets/avatar-3.png',
-    email: 'carson.darrin@devias.io',
-    phone: '304-428-3097',
-    address: { city: 'Cleveland', country: 'USA', state: 'Ohio', street: '2849 Fulton Street' },
-    createdAt: dayjs().subtract(2, 'hours').toDate(),
-  },
-  {
-    id: 'USR-002',
-    name: 'Siegbert Gottfried',
-    avatar: '/assets/avatar-2.png',
-    email: 'siegbert.gottfried@devias.io',
-    phone: '702-661-1654',
-    address: { city: 'Los Angeles', country: 'USA', state: 'California', street: '1798 Hickory Ridge Drive' },
-    createdAt: dayjs().subtract(2, 'hours').toDate(),
-  },
-  {
-    id: 'USR-001',
-    name: 'Miron Vitold',
-    avatar: '/assets/avatar-1.png',
-    email: 'miron.vitold@devias.io',
-    phone: '972-333-4106',
-    address: { city: 'San Diego', country: 'USA', state: 'California', street: '75247' },
-    createdAt: dayjs().subtract(2, 'hours').toDate(),
-  },
-] satisfies Customer[];
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 export default function Page(): React.JSX.Element {
+  const [customers, setCustomers] = useState<any>([{
+    h_level: 37533,
+    factory: false,
+    location: {
+      Longitude: -5.2378,
+      Latitude: 33.5557,
+    },
+  },
+  {
+    h_level: 16206,
+    factory: false,
+    location: {
+      Longitude: -5.1714,
+      Latitude: 33.5403,
+    },
+  },
+  {
+    h_level: 200000,
+    factory: true,
+    location: {
+      Latitude: 33.4792,
+      Longitude: -5.1831,
+    },
+  },
+  {
+    h_level: 7605,
+    factory: false,
+    location: {
+      Latitude: 33.5846,
+      Longitude: -5.1516,
+    },
+  },
+  {
+    h_level: 25155,
+    factory: false,
+    location: {
+      Longitude: -5.0311,
+      Latitude: 33.5016,
+    },
+  },
+  {
+    h_level: 347044,
+    factory: true,
+    location: {
+      Longitude: -5.1654,
+      Latitude: 33.5167,
+    },
+  },
+  {
+    h_level: 14503,
+    factory: false,
+    location: {
+      Latitude: 33.5339,
+      Longitude: -5.099,
+    },
+  },
+  {
+    h_level: 34553,
+    factory: false,
+    location: {
+      Latitude: 33.5632,
+      Longitude: -5.2126,
+    },
+  },
+  {
+    h_level: 5236,
+    factory: false,
+    location: {
+      Latitude: 33.4909,
+      Longitude: -5.0887,
+    },
+  },
+  {
+    h_level: 21715,
+    factory: false,
+    location: {
+      Longitude: -5.0669,
+      Latitude: 33.5617,
+    },
+  },
+  {
+    h_level: 324582,
+    factory: true,
+    location: {
+      Longitude: -5.1197,
+      Latitude: 33.5209,
+    },
+  }]);
+  const [latitude, setLatitude] = useState<number>(0);
+  const [longitude, setLongitude] = useState<number>(0);
   const page = 0;
   const rowsPerPage = 5;
+
+  // useEffect(() => {
+  //   // Set up real-time listener for Firestore
+  //   const unsubscribe = onSnapshot(collection(db, 'inventory'), (snapshot) => {
+  //     const data = snapshot.docs.map((doc) => {
+  //       const docData = doc.data();
+  //       return {
+  //         id: doc.id,
+  //         h_level: docData.h_level,
+  //         factory: docData.factory,
+  //         location: docData.location,
+  //         createdAt: dayjs(docData.createdAt?.toDate()).toDate(), // Adjust if your Firestore stores a Timestamp
+  //         demand: docData.h_level*1.5//should be the api call to the forcasting model
+  //       };
+  //     });
+  //     setCustomers(data);
+  //   });
+  //   (error: Error) => {
+  //     console.error('Error fetching inventory:', error);
+  //   };
+
+  //   // Clean up the listener on unmount
+  //   return () => unsubscribe();
+  // }, []);
+
+  const handleAddInventory = async () => {
+    if (latitude && longitude) {
+      try {
+        const newInventory = {
+          h_level: 0, // Default value
+          factory: false, // Default value
+          location: {
+            Latitude: latitude,
+            Longitude: longitude,
+          },
+        };
+        await addDoc(collection(db, 'inventory'), newInventory);
+        alert('Inventory added successfully!');
+        setLatitude(0); // Reset input fields
+        setLongitude(0);
+      } catch (error) {
+        console.error('Error adding inventory: ', error);
+        alert('Failed to add inventory');
+      }
+    } else {
+      alert('Please enter both latitude and longitude');
+    }
+  };
 
   const paginatedCustomers = applyPagination(customers, page, rowsPerPage);
 
@@ -136,12 +192,38 @@ export default function Page(): React.JSX.Element {
         </div>
       </Stack>
       <CustomersFilters />
-      <CustomersTable
-        count={paginatedCustomers.length}
-        page={page}
-        rows={paginatedCustomers}
-        rowsPerPage={rowsPerPage}
-      />
+      <CustomersTable count={customers.length} page={page} rows={paginatedCustomers} rowsPerPage={rowsPerPage} />
+      {/* Add New Inventory Section */}
+      <Stack spacing={2} sx={{ marginTop: 3 }}>
+        <Typography variant="h6">Add New Inventory</Typography>
+        <TextField
+          label="Latitude"
+          type="number"
+          variant="outlined"
+          value={latitude}
+          onChange={(e) => setLatitude(parseFloat(e.target.value) || 0)} // Ensure valid number, default to 0 if invalid
+          fullWidth
+          inputProps={{
+            inputMode: 'decimal', // Ensures the field supports decimal input
+            pattern: '[0-9]*', // Optional: allows the user to enter numbers only
+          }}
+        />
+        <TextField
+          label="Longitude"
+          type="number"
+          variant="outlined"
+          value={longitude}
+          onChange={(e) => setLongitude(parseFloat(e.target.value) || 0)} // Ensure valid number, default to 0 if invalid
+          fullWidth
+          inputProps={{
+            inputMode: 'decimal', // Ensures the field supports decimal input
+            pattern: '[0-9]*', // Optional: allows the user to enter numbers only
+          }}
+        />
+        <Button variant="contained" color="primary" onClick={handleAddInventory} sx={{ marginTop: 2 }}>
+          Add Inventory
+        </Button>
+      </Stack>
     </Stack>
   );
 }
